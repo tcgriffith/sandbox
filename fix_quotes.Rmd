@@ -1,0 +1,85 @@
+---
+title: "Untitled"
+author: "TC"
+date: "7/22/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+```{r}
+tmptext = readLines("./test1.txt")
+```
+
+
+```{r}
+
+quote_checker = function(tmptext) {
+  id_open = stringr::str_locate_all(tmptext, "“")
+  id_close = stringr::str_locate_all(tmptext, "”")
+  
+  fixed_text = sapply(1:length(tmptext), function(i) {
+    fixed_text_line = tmptext[i]
+    
+    if (length(id_open[[i]][, 1]) != length(id_close[[i]][, 1])) {
+      message("# line ", i, " quotes not paired, skipped")
+    }
+    else {
+      quoted_words = data.frame(openquote = id_open[[i]][, 1],
+                                closequote = id_close[[i]][, 1])
+      
+      line_s2c = stringr::str_split(tmptext[i], "")[[1]]
+      
+      if (any(quoted_words$openquote > quoted_words$closequote)) {
+        
+        id = which(quoted_words$openquote > quoted_words$closequote)
+        
+        message("## line:", i, "wrong quote detected: ", length(id) )
+        
+        for (j in id) {
+          message("### ", paste0(line_s2c[quoted_words$closequote[j]:quoted_words$openquote[j]], collapse =
+                                  ""))
+        }
+        
+        line_s2c[quoted_words$closequote[id]] = "“"
+        line_s2c[quoted_words$openquote[id]] = "”"
+        
+        fixed_text_line = paste0(line_s2c,collapse="")
+      }
+    }
+    
+    return(fixed_text_line)
+  })
+  
+  return(fixed_text)
+  
+}
+
+  
+
+
+
+```
+
+```{r}
+rslt = quote_checker(tmptext)
+
+writeLines(rslt, con = "./test1.fix.txt")
+```
+
+```{r}
+text2 = readLines("./test.txt")
+
+
+```
+
+
+```{r}
+quote_checker(text2)
+```
+
