@@ -1,0 +1,52 @@
+---
+title: "Untitled"
+author: "TC"
+date: "7/23/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+```
+
+## R Markdown
+
+
+```{r}
+# tmptext = readLines("./test1.txt")
+tmptext =xfun::file_string("./test1.txt")
+```
+
+```{r}
+quote_checker2 = function(tmptext){
+  id_open = stringr::str_locate_all(tmptext, "“")[[1]][,1]
+  id_close = stringr::str_locate_all(tmptext, "”")[[1]][,1]
+  id_all= sort(c(id_open,id_close))
+  
+  files2c = stringr::str_split(tmptext, "")[[1]]
+  files2c[id_all[c(TRUE,FALSE)]] = "“"
+  files2c[id_all[c(FALSE,TRUE)]] = "”"
+  
+  tmptext_fixed=paste0(files2c,collapse="")
+  return(tmptext_fixed)
+}
+
+tmptext_fixed = quote_checker2(tmptext)
+
+xfun::write_utf8(tmptext_fixed, con="./test1.fix2.txt")
+```
+
+## check
+
+```{r}
+
+text1= xfun::file_string("./test1.fix.txt")
+text2= xfun::file_string("./test1.fix2.txt")
+
+identical(text1,text2)
+```
+
+
+
